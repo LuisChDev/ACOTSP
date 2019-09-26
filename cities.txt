@@ -1,0 +1,12 @@
+bogotá 10 20
+medellín 5 30
+cartagena 50 -30
+barranquilla 90 70
+popayán 100 120
+sincelejo 200 300
+bucaramanga 1 99
+leticia 25 400
+pasto 123 98
+cali 450 500
+neiva 904 345
+riohacha 444 23

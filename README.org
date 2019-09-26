@@ -1,0 +1,4 @@
+
+* ACOTSP
+Este proyecto implementa una solución al Problema del Agente Viajero a partir de
+la metaheurística del Algoritmo de la Colonia de Hormigas.

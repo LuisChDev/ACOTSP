@@ -1,0 +1,4 @@
+feromone_evaporation: 0.5
+feromone_weight: 0.8
+visibility_weight: 0.8
+number_of_ants: 30
