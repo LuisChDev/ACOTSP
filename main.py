@@ -24,29 +24,33 @@ def calcProb(i: int,  # ciudad de origen.
              js: List[int],  # ciudad de destino.
              distancias: Distancias,
              feromonas: Feromonas,
-             fac_distancia: float,
-             fac_feromona: float) -> List[float]:
+             facDst: float=0.8,
+             facFrm: float=0.8) -> List[float]:
     """
     Calcula la probabilidad de que una hormiga, estando en un nodo i,
     vaya a cualquiera de los nodos aún no visitados.
     """
-    print("calculando probabilidad.")
-    # calcula la suma de los valores del denominador.
-    # set_trace()
-    total = sum([
-        (1 / (x[0]**fac_distancia)) * (x[1]**fac_feromona)
-        if x[0] > 0 else 0
-        for x in list(zip(distancias[i], feromonas[i]))
-               ])
-    # calcula la probabilidad por cada posible destino
-    probs = [((feromonas[i][j]**fac_feromona)
-              * (1/(distancias[i][j]**fac_distancia))) / (total) for j in js]
-    probs2 = []
-    cumulative = 0.0
-    for x in probs:
-        cumulative += x
-        probs2.append(cumulative)
-    return probs2
+    # calcula los valores
+    vals = [
+        ((1/distancias[i][j])**facDst) * (feromonas[i][j]**facFrm)
+        for j in js
+    ]
+    # el total de estos valores
+    total1 = sum(vals)
+
+    # probabilidad de cada valor
+    probs3 = [
+        x/total1
+        for x in vals
+    ]
+
+    # generando lista de valores acumulados
+    acumulado = 0.0
+    probs4 = []
+    for val in probs3:
+        acumulado += val
+        probs4.append(acumulado)
+    return probs4
 
 
 def calcCost(ruta: Indices, distancias: Distancias) -> float:
@@ -130,29 +134,29 @@ def bestPath(first: int,
     """
     selecciona el mejor camino basado en la cantidad de feromona.
     """
-    # set_trace()
     ruta: Indices = []
     # lista que contiene todos los índices.
     indices = list(range(0, len(ferom[0])))
     # se elimina el inicial.
     indices = indices[:first] + indices[(first + 1):]
+    # y se añade al principio de la ruta.
+    ruta.append(first)
     # la ciudad actual.
     current = first
     # mientras queden índices:
     while(len(indices) > 0):
+        # set_trace()
         # se selecciona el camino con la mayor cantidad de feromona
         # de la tabla.
-        bestNext = 0
-        bestValue = 0.0
-        for ciudad in indices:
-            if ferom[current][ciudad] > bestValue:
-                bestNext = ciudad
-                bestValue = ferom[current][ciudad]
-        ruta.append(bestNext)
-        current = bestNext
-        indices = list(filter(lambda x: x == bestNext, indices))
+        mayorFeromona = max([ferom[current][j] for j in indices])
+        mejorCamino = ferom[current].index(mayorFeromona)
+        ruta.append(mejorCamino)
+        current = mejorCamino
+        del indices[indices.index(mejorCamino)]
     return ruta
 
+
+# import main as m; (distancias, feromonas) = m.calcMatrices(m.parseFile("cities2")); m.exploracion(20, [0,1,2,3], distancias, feromonas); m.bestPath(0, feromonas)
 
 
 def exploracion(numEx: int,
@@ -189,7 +193,7 @@ def exploracion(numEx: int,
 def calcMatrices(ciudades: Ciudades) -> Tuple[Distancias, Feromonas]:
     """
     a partir de la lista de ciudades, calcula las distancias entre ellas.
-    También genera la matriz de feromomans inicial.
+    También genera la matriz de feromonas inicial.
     """
     distancias: Distancias = []
     feromonas: Feromonas = []
@@ -205,7 +209,7 @@ def calcMatrices(ciudades: Ciudades) -> Tuple[Distancias, Feromonas]:
     return (distancias, feromonas)
 
 
-def parsefile(filename: str) -> Ciudades:
+def parseFile(filename: str) -> Ciudades:
     """
     lee el archivo y pasa sus contenidos a la variable ciudades.
     """
@@ -226,7 +230,7 @@ if __name__ == "__main__":
     with open('params.yaml', 'r') as file:
         config = load(file, Loader=Loader)
 
-    ciudades = parsefile(filename)
+    ciudades = parseFile(filename)
     first = 0
     indx = 0
     for ciudad in ciudades:
@@ -236,9 +240,7 @@ if __name__ == "__main__":
         indx += 1
 
     (distances, feromones) = calcMatrices(ciudades)
-    # print(distances)
-    # print(feromones)
-    exploracion(10,
+    exploracion(3000,
                 [i for i in range(0, len(ciudades))], distances, feromones)
     print("el costo de la ruta inicial es: ",
           calcCost(bestPath(first, feromones), distances))
@@ -247,7 +249,7 @@ if __name__ == "__main__":
                 config["feromone_weight"])
         evaporar(feromones, config["feromone_evaporation"])
     camino = bestPath(first, feromones)
-    print("El mejor camino ha sido calculado.")
-    for i in camino:
-        print(ciudades[i][0])
+    print("El mejor camino ha sido calculado.\n")
+    listaNombres = [ciudades[i][0] for i in camino]
+    print(listaNombres)
     print("el costo de la ruta es:", calcCost(camino, distances))
