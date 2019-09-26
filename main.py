@@ -240,7 +240,7 @@ if __name__ == "__main__":
         indx += 1
 
     (distances, feromones) = calcMatrices(ciudades)
-    exploracion(3000,
+    exploracion(config["explorer_ants"],
                 [i for i in range(0, len(ciudades))], distances, feromones)
     print("el costo de la ruta inicial es: ",
           calcCost(bestPath(first, feromones), distances))

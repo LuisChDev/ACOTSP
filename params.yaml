@@ -1,4 +1,5 @@
-feromone_evaporation: 0.25
+feromone_evaporation: 0.5
 feromone_weight: 1
-visibility_weight: 1
-number_of_ants: 1000
+visibility_weight: 5
+number_of_ants: 1500
+explorer_ants: 5000
